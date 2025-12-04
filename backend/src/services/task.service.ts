@@ -89,7 +89,7 @@ export class TaskService {
       title?: string;
       description?: string;
       folderId?: string;
-      priority?: string;
+      priority?: Priority;
       dueDate?: Date;
     },
   ) {
