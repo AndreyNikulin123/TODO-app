@@ -3,3 +3,5 @@ dist/
 .env
 .idea/
 .vscode/
+*.log
+.DS_Store
