@@ -3,7 +3,7 @@ import { useAuth } from "./hooks/useAuth";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider";
 import { LoginPage } from "./pages/login-page/LoginPage";
-import HomePage from "./pages/home-page/HomePage";
+import { HomePage } from "./pages/home-page/HomePage";
 import { RegisterPage } from "./pages/register-page/RegisterPage";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
