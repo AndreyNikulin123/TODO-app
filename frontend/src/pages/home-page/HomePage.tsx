@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { type Folder, type Task } from "../../types";
 import { folderApi } from "../../api/folderApi";
@@ -54,16 +54,16 @@ export const HomePage: React.FC = () => {
     loadTasks();
   }, [selectedFolderId, filters]);
 
-  const refreshFolders = async () => {
+  const refreshFolders = useCallback(async () => {
     try {
       const { data } = await folderApi.getAll();
       setFolders(data);
     } catch (error) {
       console.error("Error loading folders:", error);
     }
-  };
+  }, []);
 
-  const refreshTasks = async () => {
+  const refreshTasks = useCallback(async () => {
     try {
       const { data } = await taskApi.getAll({
         folderId: selectedFolderId || undefined,
@@ -73,7 +73,16 @@ export const HomePage: React.FC = () => {
     } catch (error) {
       console.error("Error loading tasks:", error);
     }
-  };
+  }, [selectedFolderId, filters]);
+
+  const refreshAll = useCallback(async () => {
+    await refreshFolders();
+    await refreshTasks();
+  }, [refreshFolders, refreshTasks]);
+
+  const handleFilterChange = useCallback((filters: Filters) => {
+    setFilters(filters);
+  }, []);
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -110,10 +119,10 @@ export const HomePage: React.FC = () => {
       </div>
 
       <div style={{ flex: 1, padding: "20px" }}>
-        <TaskFilters onFilterChange={setFilters} />
+        <TaskFilters onFilterChange={handleFilterChange} />
         <TaskList
           tasks={tasks}
-          onRefresh={refreshTasks}
+          onRefresh={refreshAll}
           selectedFolderId={selectedFolderId}
         />
       </div>
