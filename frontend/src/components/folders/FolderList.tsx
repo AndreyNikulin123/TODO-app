@@ -46,7 +46,7 @@ export const FolderList: React.FC<FolderListProps> = ({
           cursor: "pointer",
         }}
       >
-        All Tasks
+        Все задачи
       </button>
 
       {folders.map((folder) => (
@@ -87,7 +87,7 @@ export const FolderList: React.FC<FolderListProps> = ({
           <button onClick={handleCreate} style={{ marginRight: "5px" }}>
             Save
           </button>
-          <button onClick={() => setIsCreating(false)}>Cancel</button>
+          <button onClick={() => setIsCreating(false)}>Закрыть</button>
         </div>
       ) : (
         <button
@@ -98,7 +98,7 @@ export const FolderList: React.FC<FolderListProps> = ({
             padding: "10px",
           }}
         >
-          + New Folder
+          + Новая папка
         </button>
       )}
     </div>
