@@ -38,7 +38,7 @@ export const RegisterPage: React.FC = () => {
       }}
     >
       <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
-        Create Account
+        Создать аккаунт
       </h2>
 
       {errors.root && (
@@ -65,12 +65,12 @@ export const RegisterPage: React.FC = () => {
               fontWeight: "500",
             }}
           >
-            Name (optional)
+            Имя (опционально)
           </label>
           <input
             {...register("name")}
             type="text"
-            placeholder="your name"
+            placeholder="имя"
             disabled={isSubmitting}
             style={{
               width: "100%",
@@ -103,12 +103,12 @@ export const RegisterPage: React.FC = () => {
               fontWeight: "500",
             }}
           >
-            Email
+            Электронная почта
           </label>
           <input
             {...register("email")}
             type="email"
-            placeholder="your@email.com"
+            placeholder="почта@email.com"
             disabled={isSubmitting}
             style={{
               width: "100%",
@@ -141,13 +141,13 @@ export const RegisterPage: React.FC = () => {
               fontWeight: "500",
             }}
           >
-            Password
+            Пароль
           </label>
           <div style={{ position: "relative" }}>
             <input
               {...register("password")}
               type="password"
-              placeholder="your password"
+              placeholder="пароль"
               disabled={isSubmitting}
               style={{
                 width: "100%",
@@ -192,7 +192,7 @@ export const RegisterPage: React.FC = () => {
             transition: "background-color 0.2s",
           }}
         >
-          {isSubmitting ? "Creating account..." : "Sign Up"}
+          {isSubmitting ? "Создание аккаунта..." : "Зарегистрироваться"}
         </button>
       </form>
 
@@ -204,16 +204,16 @@ export const RegisterPage: React.FC = () => {
           color: "#6B7280",
         }}
       >
-        Already have an account?{" "}
+        Уже есть аккаунт?{" "}
         <Link
           to="/login"
           style={{
             color: "#3B82F6",
-            textDecoration: "none",
+            textDecoration: "underline",
             fontWeight: "500",
           }}
         >
-          Login
+          Войти
         </Link>
       </p>
     </div>
