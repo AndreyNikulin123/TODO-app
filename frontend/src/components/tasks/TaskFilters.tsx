@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Priority } from "../../types";
 import { useDebounce } from "../../hooks/useDebounce";
 
@@ -16,6 +16,7 @@ export const TaskFilters: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
   const [priority, setPriority] = useState<string>("all");
 
   const debouncedSearch = useDebounce(search);
+
   useEffect(() => {
     onFilterChange({
       search: debouncedSearch || undefined,
@@ -35,7 +36,9 @@ export const TaskFilters: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
       <input
         type="text"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+        }}
         style={{ flex: 1, padding: "8px" }}
       />
 

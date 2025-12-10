@@ -18,6 +18,7 @@ export class TaskService {
       folderId: string;
       priority?: Priority;
       dueDate?: Date;
+      completed?: boolean;
     },
   ) {
     const folder = await prisma.folder.findFirst({
@@ -33,6 +34,8 @@ export class TaskService {
         title: data.title,
         description: data.description,
         folderId: data.folderId,
+        completed: data.completed || false,
+        userId,
         priority: data.priority,
         dueDate: data.dueDate,
       },
@@ -88,6 +91,7 @@ export class TaskService {
     data: {
       title?: string;
       description?: string;
+      completed?: boolean;
       folderId?: string;
       priority?: Priority;
       dueDate?: Date;

@@ -37,7 +37,7 @@ export const LoginPage: React.FC = () => {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>Login</h2>
+      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>Войти</h2>
 
       {errors.root && (
         <div
@@ -152,7 +152,7 @@ export const LoginPage: React.FC = () => {
           color: "#6B7280",
         }}
       >
-        Don't have an account?{" "}
+        Еще нет аккаунта?{" "}
         <Link
           to="/register"
           style={{
@@ -161,7 +161,7 @@ export const LoginPage: React.FC = () => {
             fontWeight: "500",
           }}
         >
-          Sign up
+          Зарегистрируйтесь
         </Link>
       </p>
 

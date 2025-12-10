@@ -1,12 +1,21 @@
+import { useState } from "react";
 import { taskApi } from "../../api/taskApi";
-import type { Task } from "../../types";
+import { Priority, type Task } from "../../types";
 
 interface TaskListProps {
   tasks: Task[];
   onRefresh: () => void;
+  selectedFolderId: string | null;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, onRefresh }) => {
+export const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  onRefresh,
+  selectedFolderId,
+}) => {
+  const [isCreating, setIsCreating] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+
   const handleToggleComplete = async (task: Task) => {
     try {
       await taskApi.update(task.id, { completed: !task.completed });
@@ -17,18 +26,68 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onRefresh }) => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this task?")) return;
+    if (!confirm("Удалить эту задачу?")) return;
     try {
       await taskApi.delete(id);
       onRefresh();
     } catch (error) {
-      console.error("Error updating task:", error);
+      console.error("Error deleting task:", error);
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!newTaskTitle.trim()) {
+      return;
+    }
+
+    // Проверяем, что папка выбрана
+    if (!selectedFolderId) {
+      alert("Пожалуйста, выберите папку для задачи");
+      return;
+    }
+
+    try {
+      const taskData = {
+        title: newTaskTitle,
+        completed: false,
+        folderId: selectedFolderId,
+        priority: Priority.MEDIUM,
+      };
+      console.log("Task data:", taskData);
+
+      await taskApi.create(taskData);
+      console.log("Task created successfully");
+
+      setNewTaskTitle("");
+      setIsCreating(false);
+      onRefresh();
+    } catch (error) {
+      console.error("Error creating task:", error);
     }
   };
 
   return (
     <div>
       <h2>Количество задач: ({tasks.length})</h2>
+
+      {/* Форма создания новой задачи */}
+      <div style={{ marginBottom: "20px" }}>
+        {isCreating ? (
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <input
+              type="text"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              placeholder="Название задачи"
+              style={{ flex: 1, padding: "8px" }}
+            />
+            <button onClick={handleCreate}>Сохранить</button>
+            <button onClick={() => setIsCreating(false)}>Отмена</button>
+          </div>
+        ) : (
+          <button onClick={() => setIsCreating(true)}>+ Добавить задачу</button>
+        )}
+      </div>
 
       {tasks.length === 0 ? (
         <p style={{ color: "#999", marginTop: "20px" }}>
