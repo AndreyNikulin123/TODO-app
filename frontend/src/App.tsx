@@ -1,23 +1,25 @@
-import React, { Suspense, lazy } from "react";
-import { useAuth } from "./hooks/useAuth";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./context/AuthProvider";
-import { LoadingFallback } from "./shared/ui/LoadingFallback";
+import React, { Suspense, lazy } from 'react';
+import { useAuth } from './hooks/useAuth';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './context/AuthProvider';
+import { LoadingFallback } from './shared/ui/LoadingFallback';
 // import { LoginPage } from "./pages/login-page/LoginPage";
 // import { HomePage } from "./pages/home-page/HomePage";
 // import { RegisterPage } from "./pages/register-page/RegisterPage";
 
 const LoginPage = lazy(() =>
-  import("./pages/login-page/LoginPage").then((m) => ({ default: m.LoginPage }))
+  import('./pages/login-page/LoginPage').then((m) => ({
+    default: m.LoginPage,
+  })),
 );
 const HomePage = lazy(() =>
-  import("./pages/home-page/HomePage").then((m) => ({ default: m.HomePage }))
+  import('./pages/home-page/HomePage').then((m) => ({ default: m.HomePage })),
 );
 
 const RegisterPage = lazy(() =>
-  import("./pages/register-page/RegisterPage").then((m) => ({
+  import('./pages/register-page/RegisterPage').then((m) => ({
     default: m.RegisterPage,
-  }))
+  })),
 );
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({

@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { type Folder, type Task } from "../../types";
-import { folderApi } from "../../api/folderApi";
-import { taskApi } from "../../api/taskApi";
-import { TaskList } from "../../components/tasks/TaskList";
-import { TaskFilters } from "../../components/tasks/TaskFilters";
-import { FolderList } from "../../components/folders/FolderList";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { type Folder, type Task } from '../../types';
+import { folderApi } from '../../api/folderApi';
+import { taskApi } from '../../api/taskApi';
+import { TaskList } from '../../components/tasks/TaskList';
+import { TaskFilters } from '../../components/tasks/TaskFilters';
+import { FolderList } from '../../components/folders/FolderList';
 
 export const HomePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -31,7 +31,7 @@ export const HomePage: React.FC = () => {
         const { data } = await folderApi.getAll();
         setFolders(data);
       } catch (error) {
-        console.error("Error loading folders:", error);
+        console.error('Error loading folders:', error);
       }
     };
 
@@ -47,7 +47,7 @@ export const HomePage: React.FC = () => {
         });
         setTasks(data);
       } catch (error) {
-        console.error("Error loading tasks:", error);
+        console.error('Error loading tasks:', error);
       }
     };
 
@@ -59,7 +59,7 @@ export const HomePage: React.FC = () => {
       const { data } = await folderApi.getAll();
       setFolders(data);
     } catch (error) {
-      console.error("Error loading folders:", error);
+      console.error('Error loading folders:', error);
     }
   }, []);
 
@@ -71,7 +71,7 @@ export const HomePage: React.FC = () => {
       });
       setTasks(data);
     } catch (error) {
-      console.error("Error loading tasks:", error);
+      console.error('Error loading tasks:', error);
     }
   }, [selectedFolderId, filters]);
 
@@ -85,26 +85,26 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: 'flex', height: '100vh' }}>
       <div
         style={{
-          width: "250px",
-          borderRight: "1px solid #ccc",
-          padding: "20px",
+          width: '250px',
+          borderRight: '1px solid #ccc',
+          padding: '20px',
         }}
       >
         <div
           style={{
-            marginBottom: "20px",
-            display: "flex",
-            justifyContent: "space-between",
+            marginBottom: '20px',
+            display: 'flex',
+            justifyContent: 'space-between',
           }}
         >
           <h2>Папки</h2>
           {user && (
             <button
               onClick={logout}
-              style={{ fontSize: "12px", margin: "20px" }}
+              style={{ fontSize: '12px', margin: '20px' }}
             >
               Выйти
             </button>
@@ -118,7 +118,7 @@ export const HomePage: React.FC = () => {
         />
       </div>
 
-      <div style={{ flex: 1, padding: "20px" }}>
+      <div style={{ flex: 1, padding: '20px' }}>
         <TaskFilters onFilterChange={handleFilterChange} />
         <TaskList
           tasks={tasks}

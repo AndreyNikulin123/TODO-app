@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from "react";
-import type { Folder } from "../../types";
-import { folderApi } from "../../api/folderApi";
+import React, { useCallback, useState } from 'react';
+import type { Folder } from '../../types';
+import { folderApi } from '../../api/folderApi';
 
 interface FolderListProps {
   folders: Folder[];
@@ -16,13 +16,13 @@ const FolderListComponent: React.FC<FolderListProps> = ({
   onRefresh,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderName, setNewFolderName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleCreate = useCallback(async () => {
     if (!newFolderName.trim()) {
-      setError("Название папки не может быть пустым");
+      setError('Название папки не может быть пустым');
       return;
     }
 
@@ -31,12 +31,12 @@ const FolderListComponent: React.FC<FolderListProps> = ({
 
     try {
       await folderApi.create({ name: newFolderName });
-      setNewFolderName("");
+      setNewFolderName('');
       setIsCreating(false);
       onRefresh();
     } catch (err) {
-      setError("Ошибка при создании папки");
-      console.error("Error creating folder:", err);
+      setError('Ошибка при создании папки');
+      console.error('Error creating folder:', err);
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +44,7 @@ const FolderListComponent: React.FC<FolderListProps> = ({
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (!window.confirm("Вы уверены, что хотите удалить эту папку?")) {
+      if (!window.confirm('Вы уверены, что хотите удалить эту папку?')) {
         return;
       }
 
@@ -60,13 +60,13 @@ const FolderListComponent: React.FC<FolderListProps> = ({
 
         onRefresh();
       } catch (err) {
-        setError("Ошибка при удалении папки");
-        console.error("Error deleting folder:", err);
+        setError('Ошибка при удалении папки');
+        console.error('Error deleting folder:', err);
       } finally {
         setIsLoading(false);
       }
     },
-    [selectedFolderId, onSelectFolder, onRefresh]
+    [selectedFolderId, onSelectFolder, onRefresh],
   );
 
   return (
@@ -75,12 +75,12 @@ const FolderListComponent: React.FC<FolderListProps> = ({
       {error && (
         <div
           style={{
-            padding: "10px",
-            marginBottom: "10px",
-            backgroundColor: "#fee",
-            color: "#c33",
-            borderRadius: "5px",
-            fontSize: "12px",
+            padding: '10px',
+            marginBottom: '10px',
+            backgroundColor: '#fee',
+            color: '#c33',
+            borderRadius: '5px',
+            fontSize: '12px',
           }}
         >
           {error}
@@ -92,14 +92,14 @@ const FolderListComponent: React.FC<FolderListProps> = ({
         onClick={() => onSelectFolder(null)}
         disabled={isLoading}
         style={{
-          width: "100%",
-          padding: "10px",
-          marginBottom: "10px",
-          background: !selectedFolderId ? "#3B82F6" : "#f5f5f5",
-          color: !selectedFolderId ? "white" : "black",
-          border: "none",
-          borderRadius: "5px",
-          cursor: isLoading ? "not-allowed" : "pointer",
+          width: '100%',
+          padding: '10px',
+          marginBottom: '10px',
+          background: !selectedFolderId ? '#3B82F6' : '#f5f5f5',
+          color: !selectedFolderId ? 'white' : 'black',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
           opacity: isLoading ? 0.6 : 1,
         }}
       >
@@ -111,15 +111,15 @@ const FolderListComponent: React.FC<FolderListProps> = ({
         <div
           key={folder.id}
           style={{
-            padding: "10px",
-            marginBottom: "5px",
-            background: selectedFolderId === folder.id ? "#3B82F6" : "#f5f5f5",
-            color: selectedFolderId === folder.id ? "white" : "black",
-            borderRadius: "5px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            padding: '10px',
+            marginBottom: '5px',
+            background: selectedFolderId === folder.id ? '#3B82F6' : '#f5f5f5',
+            color: selectedFolderId === folder.id ? 'white' : 'black',
+            borderRadius: '5px',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             opacity: isLoading ? 0.6 : 1,
           }}
         >
@@ -127,13 +127,13 @@ const FolderListComponent: React.FC<FolderListProps> = ({
             onClick={() => !isLoading && onSelectFolder(folder.id)}
             style={{
               flex: 1,
-              display: "flex",
-              justifyContent: "space-between",
+              display: 'flex',
+              justifyContent: 'space-between',
             }}
           >
             <span>{folder.name}</span>
             <span
-              style={{ fontSize: "12px", opacity: 0.7, marginLeft: "10px" }}
+              style={{ fontSize: '12px', opacity: 0.7, marginLeft: '10px' }}
             >
               {folder._count?.tasks || 0}
             </span>
@@ -147,14 +147,14 @@ const FolderListComponent: React.FC<FolderListProps> = ({
             }}
             disabled={isLoading}
             style={{
-              marginLeft: "10px",
-              padding: "5px 8px",
-              fontSize: "12px",
-              backgroundColor: "#ff4444",
-              color: "white",
-              border: "none",
-              borderRadius: "3px",
-              cursor: isLoading ? "not-allowed" : "pointer",
+              marginLeft: '10px',
+              padding: '5px 8px',
+              fontSize: '12px',
+              backgroundColor: '#ff4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
               opacity: isLoading ? 0.6 : 1,
             }}
           >
@@ -165,21 +165,21 @@ const FolderListComponent: React.FC<FolderListProps> = ({
 
       {/* Форма создания папки */}
       {isCreating ? (
-        <div style={{ marginTop: "10px" }}>
+        <div style={{ marginTop: '10px' }}>
           <input
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleCreate()}
+            onKeyPress={(e) => e.key === 'Enter' && handleCreate()}
             placeholder="Название папки"
             disabled={isLoading}
             autoFocus
             style={{
-              width: "100%",
-              padding: "8px",
-              marginBottom: "5px",
-              borderRadius: "3px",
-              border: "1px solid #ccc",
+              width: '100%',
+              padding: '8px',
+              marginBottom: '5px',
+              borderRadius: '3px',
+              border: '1px solid #ccc',
               opacity: isLoading ? 0.6 : 1,
             }}
           />
@@ -187,23 +187,23 @@ const FolderListComponent: React.FC<FolderListProps> = ({
             onClick={handleCreate}
             disabled={isLoading}
             style={{
-              marginRight: "5px",
-              padding: "5px 10px",
-              cursor: isLoading ? "not-allowed" : "pointer",
+              marginRight: '5px',
+              padding: '5px 10px',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
               opacity: isLoading ? 0.6 : 1,
             }}
           >
-            {isLoading ? "Загрузка..." : "Сохранить"}
+            {isLoading ? 'Загрузка...' : 'Сохранить'}
           </button>
           <button
             onClick={() => {
               setIsCreating(false);
-              setNewFolderName("");
+              setNewFolderName('');
               setError(null);
             }}
             disabled={isLoading}
             style={{
-              cursor: isLoading ? "not-allowed" : "pointer",
+              cursor: isLoading ? 'not-allowed' : 'pointer',
               opacity: isLoading ? 0.6 : 1,
             }}
           >
@@ -215,10 +215,10 @@ const FolderListComponent: React.FC<FolderListProps> = ({
           onClick={() => setIsCreating(true)}
           disabled={isLoading}
           style={{
-            width: "100%",
-            marginTop: "10px",
-            padding: "10px",
-            cursor: isLoading ? "not-allowed" : "pointer",
+            width: '100%',
+            marginTop: '10px',
+            padding: '10px',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
             opacity: isLoading ? 0.6 : 1,
           }}
         >
