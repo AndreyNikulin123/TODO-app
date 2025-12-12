@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Priority } from "../../types";
-import { useDebounce } from "../../hooks/useDebounce";
+import React, { useEffect, useState } from 'react';
+import { Priority } from '../../types';
+import { useDebounce } from '../../hooks/useDebounce';
 
 interface TaskFilterProps {
   onFilterChange: (filters: {
@@ -11,26 +11,26 @@ interface TaskFilterProps {
 }
 
 export const TaskFilters: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
-  const [search, setSearch] = useState<string>("");
-  const [completed, setCompleted] = useState<string>("all");
-  const [priority, setPriority] = useState<string>("all");
+  const [search, setSearch] = useState<string>('');
+  const [completed, setCompleted] = useState<string>('all');
+  const [priority, setPriority] = useState<string>('all');
 
   const debouncedSearch = useDebounce(search);
 
   useEffect(() => {
     onFilterChange({
       search: debouncedSearch || undefined,
-      completed: completed === "all" ? undefined : completed === "true",
-      priority: priority === "all" ? undefined : priority,
+      completed: completed === 'all' ? undefined : completed === 'true',
+      priority: priority === 'all' ? undefined : priority,
     });
   }, [debouncedSearch, completed, priority, onFilterChange]);
 
   return (
     <div
       style={{
-        marginBottom: "20px",
-        display: "flex",
-        gap: "10px",
+        marginBottom: '20px',
+        display: 'flex',
+        gap: '10px',
       }}
     >
       <input
@@ -39,7 +39,7 @@ export const TaskFilters: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
         onChange={(e) => {
           setSearch(e.target.value);
         }}
-        style={{ flex: 1, padding: "8px" }}
+        style={{ flex: 1, padding: '8px' }}
       />
 
       <select
@@ -47,7 +47,7 @@ export const TaskFilters: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
         onChange={(e) => {
           setCompleted(e.target.value);
         }}
-        style={{ padding: "8px" }}
+        style={{ padding: '8px' }}
       >
         <option value="all">Все задачи</option>
         <option value="false">Активные</option>
@@ -59,7 +59,7 @@ export const TaskFilters: React.FC<TaskFilterProps> = ({ onFilterChange }) => {
         onChange={(e) => {
           setPriority(e.target.value);
         }}
-        style={{ padding: "8px" }}
+        style={{ padding: '8px' }}
       >
         <option value="all">Все приоритеты</option>
         <option value={Priority.LOW}>Низкий</option>

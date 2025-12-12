@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
-import type { User } from "../types";
-import { apiClient } from "../api/client";
-import { authApi } from "../api/authApi";
-import { AuthContext } from "./AuthContext";
+import { useEffect, useState } from 'react';
+import type { User } from '../types';
+import { apiClient } from '../api/client';
+import { authApi } from '../api/authApi';
+import { AuthContext } from './AuthContext';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem("user");
+    const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
@@ -16,7 +16,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
 
       if (!token) {
         setIsLoading(false);
@@ -24,10 +24,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       try {
-        const { data } = await apiClient.get<{ user: User }>("auth/me");
+        const { data } = await apiClient.get<{ user: User }>('auth/me');
         setUser(data.user);
       } catch (error) {
-        localStorage.removeItem("token");
+        localStorage.removeItem('token');
         setUser(null);
         console.log(error);
       } finally {
@@ -40,21 +40,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (email: string, password: string) => {
     const { data } = await authApi.login({ email, password });
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
   };
 
   const register = async (email: string, password: string, name?: string) => {
     const { data } = await authApi.register({ email, password, name });
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 

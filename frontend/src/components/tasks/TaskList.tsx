@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from "react";
-import { taskApi } from "../../api/taskApi";
-import { Priority, type Task } from "../../types";
+import React, { useCallback, useState } from 'react';
+import { taskApi } from '../../api/taskApi';
+import { Priority, type Task } from '../../types';
 
 interface TaskListProps {
   tasks: Task[];
@@ -14,9 +14,9 @@ const TaskListComponent: React.FC<TaskListProps> = ({
   selectedFolderId,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<string>(
-    Priority.MEDIUM
+    Priority.MEDIUM,
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,36 +26,36 @@ const TaskListComponent: React.FC<TaskListProps> = ({
         await taskApi.update(task.id, { completed: !task.completed });
         onRefresh();
       } catch (error) {
-        console.error("Error updating task:", error);
+        console.error('Error updating task:', error);
       }
     },
-    [onRefresh]
+    [onRefresh],
   );
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (!confirm("Удалить эту задачу?")) return;
+      if (!confirm('Удалить эту задачу?')) return;
       setIsLoading(true);
       try {
         await taskApi.delete(id);
         onRefresh();
       } catch (error) {
-        console.error("Error deleting task:", error);
+        console.error('Error deleting task:', error);
       } finally {
         setIsLoading(false);
       }
     },
-    [onRefresh]
+    [onRefresh],
   );
 
   const handleCreate = useCallback(async () => {
     if (!newTaskTitle.trim()) {
-      alert("Введите название задачи");
+      alert('Введите название задачи');
       return;
     }
 
     if (!selectedFolderId) {
-      alert("Выберите папку для задачи");
+      alert('Выберите папку для задачи');
       return;
     }
 
@@ -70,13 +70,13 @@ const TaskListComponent: React.FC<TaskListProps> = ({
 
       await taskApi.create(taskData);
 
-      setNewTaskTitle("");
+      setNewTaskTitle('');
       setNewTaskPriority(Priority.MEDIUM);
       setIsCreating(false);
       onRefresh();
     } catch (error) {
-      console.error("Error creating task:", error);
-      alert("Ошибка при создании задачи");
+      console.error('Error creating task:', error);
+      alert('Ошибка при создании задачи');
     } finally {
       setIsLoading(false);
     }
@@ -85,26 +85,26 @@ const TaskListComponent: React.FC<TaskListProps> = ({
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case Priority.LOW:
-        return "#10b981";
+        return '#10b981';
       case Priority.MEDIUM:
-        return "#f59e0b";
+        return '#f59e0b';
       case Priority.HIGH:
-        return "#ef4444";
+        return '#ef4444';
       default:
-        return "#ccc";
+        return '#ccc';
     }
   };
 
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
       case Priority.LOW:
-        return "Низкий";
+        return 'Низкий';
       case Priority.MEDIUM:
-        return "Средний";
+        return 'Средний';
       case Priority.HIGH:
-        return "Высокий";
+        return 'Высокий';
       default:
-        return "priority";
+        return 'priority';
     }
   };
 
@@ -112,14 +112,14 @@ const TaskListComponent: React.FC<TaskListProps> = ({
     <div>
       <h2>Количество задач: ({tasks.length})</h2>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ marginBottom: '20px' }}>
         {isCreating ? (
           <div
             style={{
-              display: "flex",
-              gap: "10px",
-              marginBottom: "10px",
-              flexWrap: "wrap",
+              display: 'flex',
+              gap: '10px',
+              marginBottom: '10px',
+              flexWrap: 'wrap',
             }}
           >
             <input
@@ -131,10 +131,10 @@ const TaskListComponent: React.FC<TaskListProps> = ({
               autoFocus
               style={{
                 flex: 1,
-                minWidth: "200px",
-                padding: "8px",
-                borderRadius: "4px",
-                border: "1px solid #ddd",
+                minWidth: '200px',
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ddd',
               }}
             />
 
@@ -143,13 +143,13 @@ const TaskListComponent: React.FC<TaskListProps> = ({
               onChange={(e) => setNewTaskPriority(e.target.value)}
               disabled={isLoading}
               style={{
-                padding: "8px",
-                borderRadius: "4px",
-                border: "1px solid #ddd",
+                padding: '8px',
+                borderRadius: '4px',
+                border: '1px solid #ddd',
                 backgroundColor: getPriorityColor(newTaskPriority),
-                color: "white",
-                fontWeight: "bold",
-                cursor: isLoading ? "not-allowed" : "pointer",
+                color: 'white',
+                fontWeight: 'bold',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
               }}
             >
               <option value={Priority.LOW}>
@@ -167,31 +167,31 @@ const TaskListComponent: React.FC<TaskListProps> = ({
               onClick={handleCreate}
               disabled={isLoading}
               style={{
-                padding: "8px 16px",
-                borderRadius: "4px",
-                border: "none",
-                backgroundColor: "#3B82F6",
-                color: "white",
-                cursor: isLoading ? "not-allowed" : "pointer",
+                padding: '8px 16px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: '#3B82F6',
+                color: 'white',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 opacity: isLoading ? 0.6 : 1,
               }}
             >
-              {isLoading ? "Сохранение..." : "Сохранить"}
+              {isLoading ? 'Сохранение...' : 'Сохранить'}
             </button>
 
             <button
               onClick={() => {
                 setIsCreating(false);
-                setNewTaskTitle("");
+                setNewTaskTitle('');
                 setNewTaskPriority(Priority.MEDIUM);
               }}
               disabled={isLoading}
               style={{
-                padding: "8px 16px",
-                borderRadius: "4px",
-                border: "1px solid #ddd",
-                backgroundColor: "white",
-                cursor: isLoading ? "not-allowed" : "pointer",
+                padding: '8px 16px',
+                borderRadius: '4px',
+                border: '1px solid #ddd',
+                backgroundColor: 'white',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
               }}
             >
               Отмена
@@ -201,13 +201,13 @@ const TaskListComponent: React.FC<TaskListProps> = ({
           <button
             onClick={() => setIsCreating(true)}
             style={{
-              padding: "10px 16px",
-              borderRadius: "4px",
-              border: "none",
-              backgroundColor: "#10b981",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: "bold",
+              padding: '10px 16px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: '#10b981',
+              color: 'white',
+              cursor: 'pointer',
+              fontWeight: 'bold',
             }}
           >
             + Добавить задачу
@@ -216,7 +216,7 @@ const TaskListComponent: React.FC<TaskListProps> = ({
       </div>
 
       {tasks.length === 0 ? (
-        <p style={{ color: "#999", marginTop: "20px" }}>
+        <p style={{ color: '#999', marginTop: '20px' }}>
           Нет активных задач. Создайте вашу первую задачу!
         </p>
       ) : (
@@ -224,13 +224,13 @@ const TaskListComponent: React.FC<TaskListProps> = ({
           <div
             key={task.id}
             style={{
-              padding: "15px",
-              marginBottom: "10px",
-              background: "#f9f9f9",
-              borderRadius: "5px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              padding: '15px',
+              marginBottom: '10px',
+              background: '#f9f9f9',
+              borderRadius: '5px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               borderLeft: `4px solid ${getPriorityColor(task.priority)}`,
             }}
           >
@@ -239,14 +239,14 @@ const TaskListComponent: React.FC<TaskListProps> = ({
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => handleToggleComplete(task)}
-                style={{ marginRight: "10px" }}
+                style={{ marginRight: '10px' }}
                 disabled={isLoading}
               />
               <span
                 style={{
-                  textDecoration: task.completed ? "line-through" : "none",
+                  textDecoration: task.completed ? 'line-through' : 'none',
                   opacity: task.completed ? 0.6 : 1,
-                  marginRight: "10px",
+                  marginRight: '10px',
                 }}
               >
                 {task.title}
@@ -254,14 +254,14 @@ const TaskListComponent: React.FC<TaskListProps> = ({
 
               <span
                 style={{
-                  display: "inline-block",
-                  marginRight: "10px",
-                  fontSize: "12px",
-                  fontWeight: "bold",
+                  display: 'inline-block',
+                  marginRight: '10px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
                   backgroundColor: getPriorityColor(task.priority),
-                  color: "white",
-                  padding: "2px 8px",
-                  borderRadius: "10px",
+                  color: 'white',
+                  padding: '2px 8px',
+                  borderRadius: '10px',
                 }}
               >
                 {getPriorityLabel(task.priority)}
@@ -270,12 +270,12 @@ const TaskListComponent: React.FC<TaskListProps> = ({
               {task.folder && (
                 <span
                   style={{
-                    display: "inline-block",
-                    fontSize: "12px",
-                    background: task.folder.color || "#ccc",
-                    color: "white",
-                    padding: "2px 8px",
-                    borderRadius: "10px",
+                    display: 'inline-block',
+                    fontSize: '12px',
+                    background: task.folder.color || '#ccc',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
                   }}
                 >
                   {task.folder.name}
@@ -287,13 +287,13 @@ const TaskListComponent: React.FC<TaskListProps> = ({
               onClick={() => handleDelete(task.id)}
               disabled={isLoading}
               style={{
-                marginLeft: "10px",
-                padding: "6px 12px",
-                borderRadius: "4px",
-                border: "none",
-                backgroundColor: "#ef4444",
-                color: "white",
-                cursor: isLoading ? "not-allowed" : "pointer",
+                marginLeft: '10px',
+                padding: '6px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 opacity: isLoading ? 0.6 : 1,
               }}
             >
