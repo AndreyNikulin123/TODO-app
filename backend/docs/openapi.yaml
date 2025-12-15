@@ -1,0 +1,727 @@
+openapi: 3.0.3
+info:
+  title: TODO-list API
+  version: 1.0.0
+  description: API для управления задачами, папками и аутентификации пользователей
+
+servers:
+  - url: http://localhost:3000
+    description: Локальный сервер разработки
+
+tags:
+  - name: Auth
+    description: Аутентификация и авторизация пользователей
+  - name: Tasks
+    description: Управление задачами (CRUD операции)
+  - name: Folders
+    description: Управление папками (CRUD операции)
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Регистрация нового пользователя
+      description: Создает нового пользователя в системе
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email пользователя
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  description: Пароль пользователя (минимум 6 символов)
+                  example: password123
+                name:
+                  type: string
+                  nullable: true
+                  description: Имя пользователя (необязательно)
+                  example: Иван Иванов
+      responses:
+        '201':
+          description: Новый пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user
+                  - token
+                properties:
+                  user:
+                    type: object
+                    required:
+                      - id
+                      - email
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: Уникальный идентификатор пользователя
+                      email:
+                        type: string
+                        format: email
+                        description: Email пользователя
+                      name:
+                        type: string
+                        nullable: true
+                        description: Имя пользователя
+                  token:
+                    type: string
+                    description: JWT токен для авторизации в последующих запросах
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Авторизация пользователя
+      description: Аутентификация существующего пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email пользователя
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  description: Пароль пользователя
+                  example: password123
+      responses:
+        '200':
+          description: Пользователь успешно авторизовался
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user
+                  - token
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                    description: JWT токен для авторизации
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Неверные учетные данные или ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Информация о текущем пользователе
+      description: Получение данных аутентифицированного пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Получение информации о текущем пользователе
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: Получить список задач
+      description: |
+        Получение задач с возможностью фильтрации.
+        Все задачи автоматически фильтруются по текущему пользователю.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: folderId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          required: false
+          description: Фильтр по ID папки
+        - name: completed
+          in: query
+          schema:
+            type: boolean
+          required: false
+          description: Фильтр по статусу выполнения (true/false)
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [LOW, MEDIUM, HIGH]
+          required: false
+          description: Фильтр по приоритету
+        - name: search
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Поиск по названию задачи
+      responses:
+        '200':
+          description: Список задач успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Tasks
+      summary: Создать новую задачу
+      description: Создание новой задачи в указанной папке
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskInput'
+      responses:
+        '201':
+          description: Новая задача успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Ошибка валидации данных или папка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Указанная папка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUID задачи
+
+    put:
+      tags:
+        - Tasks
+      summary: Обновить задачу
+      description: Обновление существующей задачи
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskInput'
+      responses:
+        '200':
+          description: Задача успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Задача не найдена или не принадлежит пользователю
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Tasks
+      summary: Удалить задачу
+      description: Удаление существующей задачи
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Задача успешно удалена
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Задача не найдена или не принадлежит пользователю
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /folders:
+    get:
+      tags:
+        - Folders
+      summary: Получить все папки
+      description: Получение всех папок текущего пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список папок успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Folder'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Folders
+      summary: Создать новую папку
+      description: Создание новой папки для текущего пользователя
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderInput'
+      responses:
+        '201':
+          description: Новая папка успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /folders/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: UUID папки
+
+    get:
+      tags:
+        - Folders
+      summary: Получить папку по ID
+      description: Получение конкретной папки пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Папка успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Папка не найдена или не принадлежит пользователю
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Folders
+      summary: Обновить папку
+      description: Обновление существующей папки
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFolderInput'
+      responses:
+        '200':
+          description: Папка успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Папка не найдена или не принадлежит пользователю
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Folders
+      summary: Удалить папку
+      description: Удаление существующей папки (вместе с вложенными задачами)
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Папка успешно удалена
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Папка не найдена или не принадлежит пользователю
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT токен, полученный при авторизации.
+        Использовать в заголовке: Authorization: Bearer <token>
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Сообщение об ошибке
+        statusCode:
+          type: integer
+          description: HTTP статус код ошибки
+        timestamp:
+          type: string
+          format: date-time
+          description: Время возникновения ошибки
+      example:
+        message: 'Пользователь не найден'
+        statusCode: 404
+        timestamp: '2024-01-15T10:30:00Z'
+
+    User:
+      type: object
+      required:
+        - id
+        - email
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор пользователя
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+        name:
+          type: string
+          nullable: true
+          description: Имя пользователя
+
+    Folder:
+      type: object
+      required:
+        - id
+        - name
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор папки
+        name:
+          type: string
+          description: Название папки
+          minLength: 1
+          maxLength: 100
+        color:
+          type: string
+          nullable: true
+          pattern: '^#[0-9A-F]{6}$'
+          description: Цвет папки в формате HEX (например, #3B82F6)
+          default: '#3B82F6'
+        userId:
+          type: string
+          format: uuid
+          description: ID владельца папки
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания
+        updatedAt:
+          type: string
+          format: date-time
+          description: Дата и время последнего обновления
+
+    CreateFolderInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Название папки
+          example: 'Рабочие задачи'
+        color:
+          type: string
+          pattern: '^#[0-9A-F]{6}$'
+          description: Цвет папки в формате HEX (необязательно)
+          example: '#3B82F6'
+          nullable: true
+
+    UpdateFolderInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Новое название папки
+          example: 'Личные задачи'
+        color:
+          type: string
+          pattern: '^#[0-9A-F]{6}$'
+          description: Новый цвет папки в формате HEX
+          example: '#10B981'
+          nullable: true
+
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - completed
+        - priority
+        - folderId
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор задачи
+        title:
+          type: string
+          description: Название задачи
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+          description: Описание задачи
+          maxLength: 1000
+        completed:
+          type: boolean
+          description: Статус выполнения задачи
+          default: false
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+          description: Приоритет задачи
+          default: MEDIUM
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Срок выполнения задачи
+        folderId:
+          type: string
+          format: uuid
+          description: ID папки, к которой относится задача
+        userId:
+          type: string
+          format: uuid
+          description: ID владельца задачи
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания
+        updatedAt:
+          type: string
+          format: date-time
+          description: Дата и время последнего обновления
+
+    CreateTaskInput:
+      type: object
+      required:
+        - title
+        - folderId
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Название задачи
+          example: 'Сделать домашнее задание'
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Описание задачи
+          example: 'Выполнить упражнения 1-10'
+        folderId:
+          type: string
+          format: uuid
+          description: ID папки для задачи
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+          description: Приоритет задачи (необязательно)
+          example: 'HIGH'
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Срок выполнения (необязательно)
+          example: '2024-01-20T18:00:00Z'
+
+    UpdateTaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Новое название задачи
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Новое описание задачи
+        completed:
+          type: boolean
+          description: Новый статус выполнения
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+          description: Новый приоритет
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Новый срок выполнения
+        folderId:
+          type: string
+          format: uuid
+          description: Новая папка для задачи
