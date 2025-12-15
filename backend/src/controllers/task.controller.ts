@@ -36,7 +36,7 @@ export const updateTask = asyncHandler(
       req.userId!,
       req.body,
     );
-    res.status(201).json(task);
+    res.status(200).json(task);
   },
 );
 
