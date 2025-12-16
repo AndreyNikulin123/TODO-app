@@ -1,4 +1,8 @@
 {
+  "compilerOptions": {
+    "lib": ["es2020", "dom"], // Добавьте es2020 или dom
+    "types": ["jest", "node", "vitest"] // Убедитесь, что у вас есть типы для Jest и Node
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
