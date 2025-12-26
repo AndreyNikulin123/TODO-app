@@ -1,16 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { taskApi } from '../../api/taskApi';
 import { Priority, type Task } from '../../types';
+import { useTaskMutations } from '../../hooks/useTaskMutations';
 
 interface TaskListProps {
   tasks: Task[];
-  onRefresh: () => void;
   selectedFolderId: string | null;
 }
 
 const TaskListComponent: React.FC<TaskListProps> = ({
   tasks,
-  onRefresh,
   selectedFolderId,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
@@ -18,34 +16,25 @@ const TaskListComponent: React.FC<TaskListProps> = ({
   const [newTaskPriority, setNewTaskPriority] = useState<string>(
     Priority.MEDIUM,
   );
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { createTask, updateTask, deleteTask } = useTaskMutations();
 
   const handleToggleComplete = useCallback(
-    async (task: Task) => {
-      try {
-        await taskApi.update(task.id, { completed: !task.completed });
-        onRefresh();
-      } catch (error) {
-        console.error('Error updating task:', error);
-      }
+    (task: Task) => {
+      updateTask.mutate({
+        id: task.id,
+        data: { completed: !task.completed },
+      });
     },
-    [onRefresh],
+    [updateTask],
   );
 
   const handleDelete = useCallback(
     async (id: string) => {
       if (!confirm('Удалить эту задачу?')) return;
-      setIsLoading(true);
-      try {
-        await taskApi.delete(id);
-        onRefresh();
-      } catch (error) {
-        console.error('Error deleting task:', error);
-      } finally {
-        setIsLoading(false);
-      }
+      deleteTask.mutate(id);
     },
-    [onRefresh],
+    [deleteTask],
   );
 
   const handleCreate = useCallback(async () => {
@@ -59,28 +48,25 @@ const TaskListComponent: React.FC<TaskListProps> = ({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const taskData = {
+    createTask.mutate(
+      {
         title: newTaskTitle,
         completed: false,
         folderId: selectedFolderId,
         priority: newTaskPriority as Priority,
-      };
+      },
+      {
+        onSuccess: () => {
+          setNewTaskTitle('');
+          setNewTaskPriority(Priority.MEDIUM);
+          setIsCreating(false);
+        },
+      },
+    );
+  }, [newTaskTitle, selectedFolderId, newTaskPriority, createTask]);
 
-      await taskApi.create(taskData);
-
-      setNewTaskTitle('');
-      setNewTaskPriority(Priority.MEDIUM);
-      setIsCreating(false);
-      onRefresh();
-    } catch (error) {
-      console.error('Error creating task:', error);
-      alert('Ошибка при создании задачи');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [newTaskTitle, selectedFolderId, newTaskPriority, onRefresh]);
+  const isLoading =
+    createTask.isPending || updateTask.isPending || deleteTask.isPending;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {

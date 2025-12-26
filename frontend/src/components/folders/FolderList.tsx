@@ -1,77 +1,57 @@
 import React, { useCallback, useState } from 'react';
 import type { Folder } from '../../types';
-import { folderApi } from '../../api/folderApi';
+import { useFolderMutations } from '../../hooks/useFolderMutations';
 
 interface FolderListProps {
   folders: Folder[];
   selectedFolderId: string | null;
   onSelectFolder: (id: string | null) => void;
-  onRefresh: () => void;
 }
 
 const FolderListComponent: React.FC<FolderListProps> = ({
   folders,
   selectedFolderId,
   onSelectFolder,
-  onRefresh,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { createFolder, updateFolder, deleteFolder } = useFolderMutations();
 
   const handleCreate = useCallback(async () => {
     if (!newFolderName.trim()) {
-      setError('Название папки не может быть пустым');
+      alert('Название папки не может быть пустым');
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await folderApi.create({ name: newFolderName });
-      setNewFolderName('');
-      setIsCreating(false);
-      onRefresh();
-    } catch (err) {
-      setError('Ошибка при создании папки');
-      console.error('Error creating folder:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [newFolderName, onRefresh]);
+    createFolder.mutate({
+      name: newFolderName,
+    });
+    setNewFolderName('');
+    setIsCreating(false);
+  }, [newFolderName, createFolder]);
 
   const handleDelete = useCallback(
-    async (id: string) => {
-      if (!window.confirm('Вы уверены, что хотите удалить эту папку?')) {
-        return;
-      }
+    (id: string) => {
+      if (!confirm('Удалить эту папку?')) return;
 
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        await folderApi.delete(id);
-
-        if (selectedFolderId === id) {
-          onSelectFolder(null);
-        }
-
-        onRefresh();
-      } catch (err) {
-        setError('Ошибка при удалении папки');
-        console.error('Error deleting folder:', err);
-      } finally {
-        setIsLoading(false);
-      }
+      deleteFolder.mutate(id, {
+        onSuccess: () => {
+          if (id === selectedFolderId) {
+            onSelectFolder(null);
+          }
+        },
+      });
     },
-    [selectedFolderId, onSelectFolder, onRefresh],
+    [deleteFolder, selectedFolderId, onSelectFolder],
   );
+
+  const isLoading =
+    createFolder.isPending || updateFolder.isPending || deleteFolder.isPending;
 
   return (
     <div>
-      {/* Отображение ошибок */}
       {error && (
         <div
           style={{
@@ -87,7 +67,6 @@ const FolderListComponent: React.FC<FolderListProps> = ({
         </div>
       )}
 
-      {/* Кнопка "Все задачи" */}
       <button
         onClick={() => onSelectFolder(null)}
         disabled={isLoading}
@@ -106,7 +85,6 @@ const FolderListComponent: React.FC<FolderListProps> = ({
         Все задачи
       </button>
 
-      {/* Список папок */}
       {folders.map((folder) => (
         <div
           key={folder.id}
@@ -139,10 +117,9 @@ const FolderListComponent: React.FC<FolderListProps> = ({
             </span>
           </div>
 
-          {/* Кнопка удаления */}
           <button
             onClick={(e) => {
-              e.stopPropagation(); // Предотвратить выделение папки при клике на удаление
+              e.stopPropagation();
               handleDelete(folder.id);
             }}
             disabled={isLoading}
@@ -163,7 +140,6 @@ const FolderListComponent: React.FC<FolderListProps> = ({
         </div>
       ))}
 
-      {/* Форма создания папки */}
       {isCreating ? (
         <div style={{ marginTop: '10px' }}>
           <input
