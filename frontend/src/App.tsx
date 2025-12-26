@@ -3,9 +3,7 @@ import { useAuth } from './hooks/useAuth';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthProvider';
 import { LoadingFallback } from './shared/ui/LoadingFallback';
-// import { LoginPage } from "./pages/login-page/LoginPage";
-// import { HomePage } from "./pages/home-page/HomePage";
-// import { RegisterPage } from "./pages/register-page/RegisterPage";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const LoginPage = lazy(() =>
   import('./pages/login-page/LoginPage').then((m) => ({
@@ -38,22 +36,26 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/"
-              element={<ProtectedRoute>{<HomePage />}</ProtectedRoute>}
-            />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route
+                path="/"
+                element={<ProtectedRoute>{<HomePage />}</ProtectedRoute>}
+              />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

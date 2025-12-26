@@ -1,16 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { type Folder, type Task } from '../../types';
-import { folderApi } from '../../api/folderApi';
-import { taskApi } from '../../api/taskApi';
 import { TaskList } from '../../components/tasks/TaskList';
 import { TaskFilters } from '../../components/tasks/TaskFilters';
 import { FolderList } from '../../components/folders/FolderList';
+import { useTask } from '../../hooks/useTask';
+import { LoadingFallback } from '../../shared/ui/LoadingFallback';
+import { useFolder } from '../../hooks/useFolder';
 
 export const HomePage: React.FC = () => {
   const { user, logout } = useAuth();
-  const [folders, setFolders] = useState<Folder[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
   type Filters = {
@@ -25,64 +23,22 @@ export const HomePage: React.FC = () => {
     priority: undefined,
   });
 
-  useEffect(() => {
-    const loadFolders = async () => {
-      try {
-        const { data } = await folderApi.getAll();
-        setFolders(data);
-      } catch (error) {
-        console.error('Error loading folders:', error);
-      }
-    };
+  const {
+    tasks,
+    loading: tasksLoading,
+    error: tasksError,
+  } = useTask(selectedFolderId, filters);
 
-    loadFolders();
+  const { folders, loading: foldersLoading, error: foldersError } = useFolder();
+
+  const handleFilterChange = useCallback((newFilters: Filters) => {
+    setFilters(newFilters);
   }, []);
 
-  useEffect(() => {
-    const loadTasks = async () => {
-      try {
-        const { data } = await taskApi.getAll({
-          folderId: selectedFolderId || undefined,
-          ...filters,
-        });
-        setTasks(data);
-      } catch (error) {
-        console.error('Error loading tasks:', error);
-      }
-    };
+  if (tasksLoading || foldersLoading) return <LoadingFallback />;
 
-    loadTasks();
-  }, [selectedFolderId, filters]);
-
-  const refreshFolders = useCallback(async () => {
-    try {
-      const { data } = await folderApi.getAll();
-      setFolders(data);
-    } catch (error) {
-      console.error('Error loading folders:', error);
-    }
-  }, []);
-
-  const refreshTasks = useCallback(async () => {
-    try {
-      const { data } = await taskApi.getAll({
-        folderId: selectedFolderId || undefined,
-        ...filters,
-      });
-      setTasks(data);
-    } catch (error) {
-      console.error('Error loading tasks:', error);
-    }
-  }, [selectedFolderId, filters]);
-
-  const refreshAll = useCallback(async () => {
-    await refreshFolders();
-    await refreshTasks();
-  }, [refreshFolders, refreshTasks]);
-
-  const handleFilterChange = useCallback((filters: Filters) => {
-    setFilters(filters);
-  }, []);
+  if (tasksError) return <div>Ошибка загрузки задач</div>;
+  if (foldersError) return <div>Ошибка загрузки папок</div>;
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -114,17 +70,12 @@ export const HomePage: React.FC = () => {
           folders={folders}
           selectedFolderId={selectedFolderId}
           onSelectFolder={setSelectedFolderId}
-          onRefresh={refreshFolders}
         />
       </div>
 
       <div style={{ flex: 1, padding: '20px' }}>
         <TaskFilters onFilterChange={handleFilterChange} />
-        <TaskList
-          tasks={tasks}
-          onRefresh={refreshAll}
-          selectedFolderId={selectedFolderId}
-        />
+        <TaskList tasks={tasks} selectedFolderId={selectedFolderId} />
       </div>
     </div>
   );
